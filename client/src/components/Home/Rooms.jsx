@@ -9,21 +9,19 @@ import { useSearchParams } from 'react-router-dom'
 const Rooms = () => {
   const axiosCommon = useAxiosCommon()
   // eslint-disable-next-line no-unused-vars
-  const [params, setParams] = useSearchParams()
+  const [params,setParams] = useSearchParams()
   const category = params.get('category')
-
-  console.log(category)
-  const { data: rooms = [], isLoading } = useQuery({
-    queryKey: ['rooms', category],
-    queryFn: async () => {
-      const { data } = await axiosCommon.get(`/rooms?category=${category}`)
-
-      return data
-    },
+  
+  const {data: rooms=[], isLoading} = useQuery({
+    queryKey:['rooms',category],
+    queryFn: async()=>{
+      const {data} = await axiosCommon.get(`/rooms?category=${category}`)
+      return data;
+    }
   })
-
+  
   if (isLoading) return <LoadingSpinner />
-
+  
   return (
     <Container>
       {rooms && rooms.length > 0 ? (
