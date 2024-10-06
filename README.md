@@ -1,9 +1,4 @@
-# stayVista-complete
-
-### Important Links:
-
-- [StayVista Resources](https://github.com/shakilahmedatik/b9-stayVista-resources)
-- [Project Requirement Doc](https://docs.google.com/document/d/1rzueKvZTinMb3XY7cuDNH0S0d_l8CflG1H95VUi2Dto/edit?usp=sharing)
+# Click and Book-complete
 
 ### Packages and api docs used in this project:
 
