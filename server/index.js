@@ -5,7 +5,7 @@ const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const jwt = require("jsonwebtoken");
-
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY)
 const port = process.env.PORT || 8000;
 
 // middleware
@@ -160,6 +160,25 @@ async function run() {
       const result = await usersCollection.updateOne(query, updateDoc);
       res.send(result);
     });
+
+
+    app.post('/create-payment-intent', verifyToken, async (req, res) => {
+      const price = req.body.price
+      const priceInCent = parseFloat(price) * 100
+      if (!price || priceInCent < 1) return
+      // generate clientSecret
+      const { client_secret } = await stripe.paymentIntents.create({
+        amount: priceInCent,
+        currency: 'usd',
+        // In the latest version of the API, specifying the `automatic_payment_methods` parameter is optional because Stripe enables its functionality by default.
+        automatic_payment_methods: {
+          enabled: true,
+        },
+      })
+      // send client secret as response
+      res.send({ clientSecret: client_secret })
+    })
+
 
     app.post("/jwt", async (req, res) => {
       const user = req.body;
