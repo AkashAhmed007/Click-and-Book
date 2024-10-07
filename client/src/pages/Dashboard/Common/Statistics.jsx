@@ -1,6 +1,6 @@
 function Statistics() {
   return (
-    <div>Welcome to Dashboard: Statistics</div>
+    <h1>Welcome to Dashboard: Statistics</h1>
   )
 }
 
