@@ -4,9 +4,9 @@ import { useState } from "react";
 import { DateRange } from "react-date-range";
 import { differenceInCalendarDays } from "date-fns";
 import BookingModal from "../Modal/BookingModal";
-import useAuth from "../../hooks/useAuth"
+import useAuth from "../../hooks/useAuth";
 const RoomReservation = ({ room, refetch }) => {
-  const {user} = useAuth()
+  const { user } = useAuth();
   const [state, setState] = useState([
     {
       startDate: new Date(room.from),
@@ -14,14 +14,15 @@ const RoomReservation = ({ room, refetch }) => {
       key: "selection",
     },
   ]);
- const totalPrice = parseInt(
-  (differenceInCalendarDays(new Date(room.to), new Date(room.from)) + 1) * room?.price
- )
+  const totalPrice = parseInt(
+    (differenceInCalendarDays(new Date(room.to), new Date(room.from)) + 1) *
+      room?.price
+  );
 
-const [isOpen,setIsOpen] = useState(false)
-const closeModal=()=>{
-  setIsOpen(false)
-}
+  const [isOpen, setIsOpen] = useState(false);
+  const closeModal = () => {
+    setIsOpen(false);
+  };
 
   return (
     <div className="rounded-xl border-[1px] border-neutral-200 overflow-hidden bg-white">
@@ -52,9 +53,26 @@ const closeModal=()=>{
       </div>
       <hr />
       <div className="p-4">
-        <Button disabled={room?.booked === true} onClick={()=>setIsOpen(true)} label={"Reserve"} />
+        <Button
+          disabled={room?.booked === true}
+          onClick={() => setIsOpen(true)}
+          label={room?.booked === true ? "Booked": "Reserve"}
+        />
       </div>
-      <BookingModal refetch={refetch} isOpen={isOpen} closeModal={closeModal} bookingInfo={{...room, price:totalPrice, guest :{name:user?.displayName}}}/>
+      <BookingModal
+        refetch={refetch}
+        isOpen={isOpen}
+        closeModal={closeModal}
+        bookingInfo={{
+          ...room,
+          price: totalPrice,
+          guest: {
+            name: user?.displayName,
+            email: user?.email,
+            image: user?.photoURL,
+          },
+        }}
+      />
       <hr />
       <div className="p-4 flex items-center justify-between font-semibold text-lg">
         <div>Total</div>
@@ -66,7 +84,7 @@ const closeModal=()=>{
 
 RoomReservation.propTypes = {
   room: PropTypes.object,
-  refetch: PropTypes.func
+  refetch: PropTypes.func,
 };
 
 export default RoomReservation;
