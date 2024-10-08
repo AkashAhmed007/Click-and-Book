@@ -5,9 +5,12 @@ import { useEffect, useState } from "react";
 import useAxiosSecure from "../../hooks/useAxiosSecure";
 import PropTypes from "prop-types";
 import useAuth from "../../hooks/useAuth";
+import { useNavigate } from "react-router-dom";
+import toast from 'react-hot-toast'
 
-const CheckoutForm = ({ closeModal, bookingInfo }) => {
+const CheckoutForm = ({ closeModal, bookingInfo, refetch}) => {
   const { user } = useAuth();
+  const navigate = useNavigate()
   const stripe = useStripe();
   const elements = useElements();
   const axiosSecure = useAxiosSecure();
@@ -72,10 +75,26 @@ const CheckoutForm = ({ closeModal, bookingInfo }) => {
     if (paymentIntent.status === "succeeded") {
       const paymentInfo = {
         ...bookingInfo,
+        roomId: bookingInfo._id,
         transactionId: paymentIntent.id,
         date: new Date(),
       };
-      console.log(paymentInfo);
+      delete paymentInfo._id;
+      try {
+         const {data} = await axiosSecure.post('/booking',paymentInfo)
+         console.log(data)
+
+        await axiosSecure.patch(`/booking/status/${bookingInfo?._id}`,{
+          status: true,
+        })
+
+         refetch()
+         closeModal()
+         toast.success('Room booked successfully')
+         navigate('/dashboard/my-bookings')
+      } catch (error) {
+        console.log(error)
+      }
     }
   
     setProcessing(false);
