@@ -76,7 +76,6 @@ const ManageBookings = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {' '}
                   {/* Table Row Data */}
                   {bookings.map(booking => (
                     <BookingDataRow

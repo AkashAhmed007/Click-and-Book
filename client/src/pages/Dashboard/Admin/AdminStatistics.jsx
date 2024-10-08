@@ -16,9 +16,8 @@ const AdminStatistics = () => {
       return data
     },
   })
-
-  console.log(statData)
   if (isLoading) return <LoadingSpinner />
+
   return (
     <div>
       <div className='mt-12'>
@@ -52,7 +51,7 @@ const AdminStatistics = () => {
                 Total User
               </p>
               <h4 className='block antialiased tracking-normal font-sans text-2xl font-semibold leading-snug text-blue-gray-900'>
-                {statData?.totalUsers}
+              {statData?.totalUsers}
               </h4>
             </div>
           </div>
@@ -68,7 +67,7 @@ const AdminStatistics = () => {
                 Total Bookings
               </p>
               <h4 className='block antialiased tracking-normal font-sans text-2xl font-semibold leading-snug text-blue-gray-900'>
-                {statData?.totalBookings}
+              {statData?.totalBookings}
               </h4>
             </div>
           </div>
@@ -84,7 +83,7 @@ const AdminStatistics = () => {
                 Total Rooms
               </p>
               <h4 className='block antialiased tracking-normal font-sans text-2xl font-semibold leading-snug text-blue-gray-900'>
-                {statData?.totalRooms}
+              {statData?.totalRooms}
               </h4>
             </div>
           </div>

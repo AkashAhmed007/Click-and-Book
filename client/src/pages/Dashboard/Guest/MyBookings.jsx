@@ -3,6 +3,7 @@ import useAxiosSecure from '../../../hooks/useAxiosSecure';
 import useAuth from '../../../hooks/useAuth';
 import { useQuery } from '@tanstack/react-query';
 import BookingDataRow from '../../../components/Dashboard/TableRows/BookingDataRow';
+import LoadingSpinner from '../../../components/Shared/LoadingSpinner';
 const MyBookings = () => {
   const axiosSecure = useAxiosSecure();
   const { user } = useAuth();
@@ -14,6 +15,8 @@ const MyBookings = () => {
       return data;
     },
   });
+  
+  if(isLoading) return <LoadingSpinner></LoadingSpinner>
   return (
     <>
       <Helmet>
