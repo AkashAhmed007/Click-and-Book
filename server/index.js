@@ -5,7 +5,7 @@ const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const jwt = require("jsonwebtoken");
-const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY)
+const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 const port = process.env.PORT || 8000;
 
 // middleware
@@ -72,7 +72,6 @@ async function run() {
       next();
     };
 
-
     //get all rooms from db
     app.get("/rooms", async (req, res) => {
       const category = req.query.category;
@@ -83,12 +82,17 @@ async function run() {
     });
 
     //get listing-room for host
-    app.get("/my-listings/:email",verifyToken,verifyHost, async (req, res) => {
-      const email = req.params.email;
-      let query = { "host.email": email };
-      const result = await roomsCollection.find(query).toArray();
-      res.send(result);
-    });
+    app.get(
+      "/my-listings/:email",
+      verifyToken,
+      verifyHost,
+      async (req, res) => {
+        const email = req.params.email;
+        let query = { "host.email": email };
+        const result = await roomsCollection.find(query).toArray();
+        res.send(result);
+      }
+    );
 
     //get a single room from db
     app.get("/room/:id", async (req, res) => {
@@ -98,7 +102,7 @@ async function run() {
       res.send(result);
     });
 
-    app.delete("/room/:id",verifyToken,verifyHost, async (req, res) => {
+    app.delete("/room/:id", verifyToken, verifyHost, async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
       const result = await roomsCollection.deleteOne(query);
@@ -106,7 +110,7 @@ async function run() {
     });
 
     //save a room data from db
-    app.post("/room",verifyToken,verifyHost, async (req, res) => {
+    app.post("/room", verifyToken, verifyHost, async (req, res) => {
       const roomData = req.body;
       const result = await roomsCollection.insertOne(roomData);
       res.send(result);
@@ -137,7 +141,7 @@ async function run() {
       res.send(result);
     });
 
-    app.get("/users",verifyToken,verifyAdmin, async (req, res) => {
+    app.get("/users", verifyToken, verifyAdmin, async (req, res) => {
       const result = await usersCollection.find().toArray();
       res.send(result);
     });
@@ -162,54 +166,96 @@ async function run() {
       res.send(result);
     });
 
-    app.post('/create-payment-intent', verifyToken, async (req, res) => {
-      const {price} = req.body
-      const priceInCent = parseFloat(price) * 100
-      if (!price || priceInCent < 1) return
+    app.post("/create-payment-intent", verifyToken, async (req, res) => {
+      const { price } = req.body;
+      const priceInCent = parseFloat(price) * 100;
+      if (!price || priceInCent < 1) return;
       // generate clientSecret
       const { client_secret } = await stripe.paymentIntents.create({
         amount: priceInCent,
-        currency: 'usd',
+        currency: "usd",
         automatic_payment_methods: {
           enabled: true,
         },
-      })
-      res.send({ clientSecret: client_secret })
-    })
+      });
+      res.send({ clientSecret: client_secret });
+    });
 
     //save a room data from db
-    app.post("/booking",verifyToken,async (req, res) => {
+    app.post("/booking", verifyToken, async (req, res) => {
       const bookingData = req.body;
       const result = await bookingsCollection.insertOne(bookingData);
       res.send(result);
     });
 
-    app.patch('/booking/status/:id', async(req,res)=>{
-      const id =req.params.id;
+    app.patch("/booking/status/:id", async (req, res) => {
+      const id = req.params.id;
       const status = req.body.status;
-      const query = {_id: new ObjectId(id)}
+      const query = { _id: new ObjectId(id) };
       const updateDoc = {
-        $set:{
+        $set: {
           booked: status,
-        }
-      }
-      const result = await roomsCollection.updateOne(query,updateDoc)
-      res.send(result)
-    })
+        },
+      };
+      const result = await roomsCollection.updateOne(query, updateDoc);
+      res.send(result);
+    });
 
     //get all booking for a guest
-    app.get('/my-bookings/:email',verifyToken, async(req,res)=>{
+    app.get("/my-bookings/:email", verifyToken, async (req, res) => {
       const email = req.params.email;
-      const query = {'guest.email': email}
-      const result = await bookingsCollection.find(query).toArray()
-      res.send(result)
-    })
+      const query = { "guest.email": email };
+      const result = await bookingsCollection.find(query).toArray();
+      res.send(result);
+    });
 
-    app.delete("/booking/:id",verifyToken, async (req, res) => {
+    //get listing-room for host
+    app.get(
+      "/manage-bookings/:email",
+      verifyToken,
+      verifyHost,
+      async (req, res) => {
+        const email = req.params.email;
+        let query = { "host.email": email };
+        const result = await bookingsCollection.find(query).toArray();
+        res.send(result);
+      }
+    );
+
+    app.delete("/booking/:id", verifyToken, async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
       const result = await bookingsCollection.deleteOne(query);
       res.send(result);
+    });
+
+    app.get("/admin-stat", async (req, res) => {
+      const bookingDetails = await bookingsCollection
+        .find(
+          {},
+          {
+            projection: {
+              date: 1,
+              price: 1,
+            },
+          }
+        )
+        .toArray();
+        const totalUsers = await usersCollection.countDocuments()
+        const totalRooms = await roomsCollection.countDocuments()
+        const totalPrice = bookingDetails.reduce((sum,booking)=>sum+booking.price,0)
+
+        const chartData = bookingDetails.map(booking=>{
+          const day = new Date(booking.date).getDate()
+          const month = new Date(booking.date).getMonth() + 1;
+          const data = [`${day}/${month}`, booking?.price]
+          return data;
+        })
+        chartData.unshift(['Day','Sales'])
+        //another way
+        // chartData.splice(0,0,['Day','Sales'])
+        
+        res.send({totalUsers, totalRooms, totalBookings:bookingDetails.length, totalPrice, chartData})
     });
 
     app.post("/jwt", async (req, res) => {
