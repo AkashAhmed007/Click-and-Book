@@ -54,7 +54,7 @@ const closeModal=()=>{
       <div className="p-4">
         <Button onClick={()=>setIsOpen(true)} label={"Reserve"} />
       </div>
-      <BookingModal isOpen={isOpen} closeModal={closeModal} bookingInfo={{...room,price:totalPrice, guest :{name:user?.displayName}}}/>
+      <BookingModal isOpen={isOpen} closeModal={closeModal} bookingInfo={{...room, price:totalPrice, guest :{name:user?.displayName}}}/>
       <hr />
       <div className="p-4 flex items-center justify-between font-semibold text-lg">
         <div>Total</div>
