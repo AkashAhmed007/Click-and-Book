@@ -49,6 +49,7 @@ async function run() {
     // auth related api
     const roomsCollection = client.db("Click-N-Book").collection("rooms");
     const usersCollection = client.db("Click-N-Book").collection("users");
+    const bookingsCollection = client.db("Click-N-Book").collection("bookings");
 
     //Verify Admin middleware
 
@@ -178,6 +179,25 @@ async function run() {
       res.send({ clientSecret: client_secret })
     })
 
+    //save a room data from db
+    app.post("/booking",verifyToken,async (req, res) => {
+      const bookingData = req.body;
+      const result = await bookingsCollection.insertOne(bookingData);
+      res.send(result);
+    });
+
+    app.patch('/booking/status/:id', async(req,res)=>{
+      const id =req.params.id;
+      const status = req.body.status;
+      const query = {_id: new ObjectId(id)}
+      const updateDoc = {
+        $set:{
+          booked: status,
+        }
+      }
+      const result = await roomsCollection.updateOne(query,updateDoc)
+      res.send(result)
+    })
 
     app.post("/jwt", async (req, res) => {
       const user = req.body;
