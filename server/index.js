@@ -162,7 +162,6 @@ async function run() {
       res.send(result);
     });
 
-
     app.post('/create-payment-intent', verifyToken, async (req, res) => {
       const {price} = req.body
       const priceInCent = parseFloat(price) * 100
@@ -175,7 +174,6 @@ async function run() {
           enabled: true,
         },
       })
-      // send client secret as response
       res.send({ clientSecret: client_secret })
     })
 
@@ -196,6 +194,14 @@ async function run() {
         }
       }
       const result = await roomsCollection.updateOne(query,updateDoc)
+      res.send(result)
+    })
+
+    //get all booking for a guest
+    app.get('/my-bookings/:email',verifyToken, async(req,res)=>{
+      const email = req.params.email;
+      const query = {'guest.email': email}
+      const result = await bookingsCollection.find(query).toArray()
       res.send(result)
     })
 
