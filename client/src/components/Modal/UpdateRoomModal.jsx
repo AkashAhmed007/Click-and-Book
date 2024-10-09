@@ -13,7 +13,7 @@ import useAxiosSecure from '../../hooks/useAxiosSecure'
 import { imageUpload } from '../../api/utils'
 import toast from 'react-hot-toast'
 
-const UpdateRoomModal = ({ setIsEditModalOpen, isOpen, room, refetch }) => {
+const UpdateRoomModal = ({ setIsEditModal, isOpen, room, refetch }) => {
   const axiosSecure = useAxiosSecure()
   const [loading, setLoading] = useState(false)
   const [roomData, setRoomData] = useState(room)
@@ -61,7 +61,7 @@ const UpdateRoomModal = ({ setIsEditModalOpen, isOpen, room, refetch }) => {
       )
       console.log(data)
       refetch()
-      setIsEditModalOpen(false)
+      setIsEditModal(false)
       setLoading(false)
       toast.success('Home info updated')
     } catch (err) {
@@ -76,7 +76,7 @@ const UpdateRoomModal = ({ setIsEditModalOpen, isOpen, room, refetch }) => {
       <Dialog
         as='div'
         className='relative z-10'
-        onClose={() => setIsEditModalOpen(false)}
+        onClose={() => setIsEditModal(false)}
       >
         <TransitionChild
           as={Fragment}
@@ -125,7 +125,7 @@ const UpdateRoomModal = ({ setIsEditModalOpen, isOpen, room, refetch }) => {
                   <button
                     type='button'
                     className='inline-flex justify-center rounded-md border border-transparent bg-red-100 px-4 py-2 text-sm font-medium text-red-900 hover:bg-red-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2'
-                    onClick={() => setIsEditModalOpen(false)}
+                    onClick={() => setIsEditModal(false)}
                   >
                     Cancel
                   </button>
