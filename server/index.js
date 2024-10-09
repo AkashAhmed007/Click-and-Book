@@ -314,6 +314,52 @@ async function run() {
       });
     });
 
+    app.get("/guest-stat", verifyToken, verifyHost, async (req, res) => {
+      const { email } = req.user;
+      const bookingDetails = await bookingsCollection
+        .find(
+          { "guest.email": email },
+          {
+            projection: {
+              date: 1,
+              price: 1,
+            },
+          }
+        )
+        .toArray();
+
+      const totalPrice = bookingDetails.reduce(
+        (sum, booking) => sum + booking.price,
+        0
+      );
+      const { timeStamp } = await usersCollection.findOne(
+        { email },
+        {
+          projection: {
+            timeStamp: 1,
+          },
+        }
+      );
+      const chartData = bookingDetails.map((booking) => {
+        const day = new Date(booking.date).getDate();
+        const month = new Date(booking.date).getMonth() + 1;
+        const data = [`${day}/${month}`, booking?.price];
+        return data;
+      });
+      chartData.unshift(["Day", "Sales"]);
+      //another way
+      // chartData.splice(0,0,['Day','Sales'])
+
+      res.send({
+        totalBookings: bookingDetails.length,
+        totalPrice,
+        chartData,
+        guestSince: timeStamp
+      });
+    });
+
+
+
     app.post("/jwt", async (req, res) => {
       const user = req.body;
       const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {
