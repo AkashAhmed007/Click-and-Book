@@ -314,7 +314,7 @@ async function run() {
       });
     });
 
-    app.get("/guest-stat", verifyToken, verifyHost, async (req, res) => {
+    app.get("/guest-stat", verifyToken,async (req, res) => {
       const { email } = req.user;
       const bookingDetails = await bookingsCollection
         .find(
@@ -358,7 +358,17 @@ async function run() {
       });
     });
 
-
+//update room data
+app.put('/room/update/:id',verifyToken,verifyHost,async(req,res)=>{
+  const id = req.params.id
+  const roomData = req.body
+  const query = {_id: new ObjectId(id)}
+  const updateDoc={
+    $set: roomData
+  }
+  const result = await roomsCollection.updateOne(query,updateDoc)
+  res.send(result)
+})
 
     app.post("/jwt", async (req, res) => {
       const user = req.body;
